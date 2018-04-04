@@ -1,6 +1,7 @@
 library(tidyverse)
 library(ggalt)
 library(janitor)
+library(stringr)
 
 data <- read_csv("data/tabn322_10_clean.csv")
 data <- clean_names(data)
@@ -10,7 +11,9 @@ data_l <- gather(data,
                  value = "count",
                  x1970_71:x2015_16) %>%
     group_by(year) %>%
-    mutate(yr_pct = count / sum(count)*100)
+    mutate(yr_pct = count / sum(count)*100,
+           yr = as.integer(str_extract(year, "\\d{4}")))
+
 
 
 data_comp <- data_l %>%
@@ -19,6 +22,8 @@ data_comp <- data_l %>%
     spread(year, yr_pct) %>%
     mutate(delta = x2015_16 - x1995_96,
            growth = delta > 0)
+
+
 
 
 p <- ggplot(data_comp,
@@ -42,3 +47,17 @@ p + geom_segment(size = 0.7,
          caption = "Data calculated from NCES Digest 2017, Table 322.10.") +
     theme_minimal() +
     theme(legend.position = "bottom")
+
+
+p <- ggplot(data_l, aes(x = yr,
+                        y = yr_pct,
+                        group = field_of_study))
+
+p + geom_line() +
+    facet_wrap(~ reorder(field_of_study, -yr_pct),
+               labeller = label_wrap_gen(width = 35),
+               ncol = 5) +
+    labs(x = "Year", y = "Percent of all BAs conferred",
+                  caption = "Data from NCES Digest 2017, Table 322.10.") +
+    theme_minimal() +
+    theme(strip.text.x = element_text(size = 6, face = "bold"))
