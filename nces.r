@@ -97,7 +97,7 @@ data_l$cutoff <- data_l$field_of_study %in% ind
 ## prompted by @drdrang.
 ## I should make this more general
 vars <- area_pcts[area_pcts$cutoff,] %>% arrange(desc(mean_pct))
-o <- c(19:15, 10:14, 5:9, 1:4)
+o <- c(15:19, 10:14, 5:9, 1:4)
 
 p <- ggplot(subset(data_l, cutoff == FALSE),
             aes(x = yr,
