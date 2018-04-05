@@ -85,8 +85,6 @@ area_pcts <- data_l %>% group_by(field_of_study) %>%
 
 area_pcts %>% arrange(desc(mean_pct)) %>% data.frame()
 
-data_l <- data_l %>% mutate(field_sum = field_of_study)
-
 ind <- area_pcts$field_of_study[!area_pcts$cutoff]
 
 data_l$cutoff <- data_l$field_of_study %in% ind
