@@ -27,26 +27,30 @@ data_l <- gather(data,
                  value = "count",
                  x1970_71:x2015_16) %>%
     group_by(year) %>%
-    mutate(yr_pct = count / sum(count)*100,
-           yr = as.integer(str_extract(year, "\\d{4}")))
+    mutate(yr_pct = count / sum(count)*100) %>%
+    ungroup()
 
+yr <-  as.integer(str_extract(data_l$year, "\\d{4}"))
+
+data_l <- data_l %>% add_column(yr, .before = 2) %>%
+    select(-year) %>% group_by(yr)
 
 
 data_comp <- data_l %>%
-    filter(year == "x1995_96" | year == "x2015_16") %>%
+    filter(yr == 1995 | yr == 2015) %>%
     select(-count) %>%
-    spread(year, yr_pct) %>%
-    mutate(delta = x2015_16 - x1995_96,
+    tidyr::spread(yr, yr_pct) %>%
+    mutate(delta = `2015` - `1995`,
            growth = delta > 0)
 
 
 
 
 p <- ggplot(data_comp,
-            aes(x = x1995_96,
-                xend = x2015_16,
-                y = reorder(field_of_study, x1995_96),
-                yend = reorder(field_of_study, x1995_96),
+            aes(x = `1995`,
+                xend = `2015`,
+                y = reorder(field_of_study, `1995`),
+                yend = reorder(field_of_study, `1995`),
                 color = growth))
 
 
