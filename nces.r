@@ -98,6 +98,12 @@ p + geom_line() +
 ### I should make this more general
 ### prompted by @drdrang.
 
+my_xlab = "Year"
+my_ylab = "Percent of all BAs conferred"
+my_caption = "Data from NCES Digest 2017, Table 322.10"
+my_subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter"
+my_title_1 = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees"
+my_title_2 = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging less than 2% of all degrees"
 
 ### The usual way: properly ordered, but filled from the top left.
 p <- ggplot(subset(data_l, cutoff == TRUE),
@@ -109,11 +115,11 @@ p + geom_line() +
     facet_wrap(~ reorder(field_of_study, -yr_pct),
                labeller = label_wrap_gen(width = 35),
                ncol = 5) +
-    labs(x = "Year",
-         y = "Percent of all BAs conferred",
-         caption = "Data from NCES Digest 2017, Table 322.10.",
-         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees",
-         subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
+    labs(x = my_xlab,
+         y = my_ylab,
+         caption = my_caption,
+         title = my_title_1,
+         subtitle = my_subtitle) +
     theme_minimal() +
     theme(strip.text.x = element_text(size = 6))
 
@@ -124,11 +130,11 @@ p + geom_line() +
     facet_wrap(~ reorder(field_of_study, -yr_pct),
                labeller = label_wrap_gen(width = 35),
                ncol = 5, as.table = FALSE) +
-    labs(x = "Year",
-         y = "Percent of all BAs conferred",
-         caption = "Data from NCES Digest 2017, Table 322.10.",
-         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees",
-         subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
+    labs(x = my_xlab,
+         y = my_ylab,
+         caption = my_caption,
+         title = my_title_1,
+         subtitle = my_subtitle) +
     theme_minimal() +
     theme(strip.text.x = element_text(size = 6))
 
@@ -148,11 +154,11 @@ p + geom_line() +
     facet_wrap(~ factor(field_of_study, levels = vars$field_of_study[o], ordered = TRUE),
                labeller = label_wrap_gen(width = 35),
                ncol = 5, as.table = FALSE) +
-    labs(x = "Year",
-         y = "Percent of all BAs conferred",
-         caption = "Data from NCES Digest 2017, Table 322.10.",
-         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees",
-         subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
+    labs(x = my_xlab,
+         y = my_ylab,
+         caption = my_caption,
+         title = my_title_1,
+         subtitle = my_subtitle) +
     theme_minimal() +
     theme(strip.text.x = element_text(size = 6))
 
@@ -170,10 +176,10 @@ p + geom_line() +
     facet_wrap(~ factor(field_of_study, levels = vars$field_of_study[o], ordered = TRUE),
                labeller = label_wrap_gen(width = 35),
                ncol = 5, as.table = FALSE) +
-    labs(x = "Year",
-         y = "Percent of all BAs conferred",
-         caption = "Data from NCES Digest 2017, Table 322.10.",
-         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging less than 2% of all degrees",
-         subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
+    labs(x = my_xlab,
+         y = my_ylab,
+         caption = my_caption,
+         title = my_title_2,
+         subtitle = my_subtitle) +
     theme_minimal() +
     theme(strip.text.x = element_text(size = 6))
