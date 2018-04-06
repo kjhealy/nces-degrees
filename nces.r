@@ -43,8 +43,18 @@ data_comp <- data_l %>%
     mutate(delta = `2015` - `1995`,
            growth = delta > 0)
 
+area_pcts <- data_l %>% group_by(field_of_study) %>%
+    summarize(mean_pct = mean(yr_pct)) %>%
+    mutate(cutoff = mean_pct < 2)
+
+ind <- area_pcts$field_of_study[!area_pcts$cutoff]
+
+data_l$cutoff <- data_l$field_of_study %in% ind
 
 
+###--------------------------------------------------
+### Plots
+###--------------------------------------------------
 
 p <- ggplot(data_comp,
             aes(x = `1995`,
@@ -55,8 +65,7 @@ p <- ggplot(data_comp,
 
 
 p + geom_segment(size = 0.7,
-                 arrow = arrow(type = "closed",
-                               angle = 35,
+                 arrow = arrow(type = "closed", angle = 35,
                                length = unit(0.01, "npc"))) +
     scale_color_manual(labels = c("Decline", "Growth"),
                        values = my_colors()) +
@@ -68,9 +77,7 @@ p + geom_segment(size = 0.7,
     theme_minimal() +
     theme(legend.position = "bottom")
 
-
-p <- ggplot(data_l, aes(x = yr,
-                        y = yr_pct,
+p <- ggplot(data_l, aes(x = yr, y = yr_pct,
                         group = field_of_study))
 
 p + geom_line() +
@@ -83,42 +90,52 @@ p + geom_line() +
     theme(strip.text.x = element_text(size = 6, face = "bold"))
 
 
-area_pcts <- data_l %>% group_by(field_of_study) %>%
-    summarize(mean_pct = mean(yr_pct)) %>%
-    mutate(cutoff = mean_pct < 2)
+###--------------------------------------------------
+### Ordering example
+###--------------------------------------------------
 
-area_pcts %>% arrange(desc(mean_pct)) %>% data.frame()
-
-ind <- area_pcts$field_of_study[!area_pcts$cutoff]
-
-data_l$cutoff <- data_l$field_of_study %in% ind
+### ordering jiggery-pokery
+### I should make this more general
+### prompted by @drdrang.
 
 
-
-## ordering jiggery-pokery
-## prompted by @drdrang.
-## I should make this more general
-vars <- area_pcts[area_pcts$cutoff,] %>% arrange(desc(mean_pct))
-o <- c(15:19, 10:14, 5:9, 1:4)
-
-p <- ggplot(subset(data_l, cutoff == FALSE),
+### The usual way: properly ordered, but filled from the top left.
+p <- ggplot(subset(data_l, cutoff == TRUE),
             aes(x = yr,
                 y = yr_pct,
                 group = field_of_study))
 
 p + geom_line() +
-    facet_wrap(~ factor(field_of_study, levels = vars$field_of_study[o], ordered = TRUE),
+    facet_wrap(~ reorder(field_of_study, -yr_pct),
                labeller = label_wrap_gen(width = 35),
-               ncol = 5, as.table = FALSE) +
+               ncol = 5) +
     labs(x = "Year",
          y = "Percent of all BAs conferred",
          caption = "Data from NCES Digest 2017, Table 322.10.",
-         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging less than 2% of all degrees",
+         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees",
          subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
     theme_minimal() +
     theme(strip.text.x = element_text(size = 6))
 
 
+### Turn off table ordering: filled from the bottom right, but this breaks the
+### ordering because it's read the wrong way
+p + geom_line() +
+    facet_wrap(~ reorder(field_of_study, -yr_pct),
+               labeller = label_wrap_gen(width = 35),
+               ncol = 5, as.table = FALSE) +
+    labs(x = "Year",
+         y = "Percent of all BAs conferred",
+         caption = "Data from NCES Digest 2017, Table 322.10.",
+         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees",
+         subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
+    theme_minimal() +
+    theme(strip.text.x = element_text(size = 6))
+
+
+### Force the ordering we cant using as.table = FALSE and
+### by using factor() on field of study to specify it's order
+### correctly.
 vars <- area_pcts[!area_pcts$cutoff,] %>% arrange(desc(mean_pct))
 o <- c(10:14, 5:9, 1:4)
 
@@ -135,6 +152,28 @@ p + geom_line() +
          y = "Percent of all BAs conferred",
          caption = "Data from NCES Digest 2017, Table 322.10.",
          title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging more than 2% of all degrees",
+         subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
+    theme_minimal() +
+    theme(strip.text.x = element_text(size = 6))
+
+
+### Do the same for areas <2% of degrees
+vars <- area_pcts[area_pcts$cutoff,] %>% arrange(desc(mean_pct))
+o <- c(15:19, 10:14, 5:9, 1:4)
+
+p <- ggplot(subset(data_l, cutoff == FALSE),
+            aes(x = yr,
+                y = yr_pct,
+                group = field_of_study))
+
+p + geom_line() +
+    facet_wrap(~ factor(field_of_study, levels = vars$field_of_study[o], ordered = TRUE),
+               labeller = label_wrap_gen(width = 35),
+               ncol = 5, as.table = FALSE) +
+    labs(x = "Year",
+         y = "Percent of all BAs conferred",
+         caption = "Data from NCES Digest 2017, Table 322.10.",
+         title = "US Trends in Bachelor's Degrees Conferred, 1970-2015,\nfor Areas averaging less than 2% of all degrees",
          subtitle = "Observations are every 5 years from 1970-1995, and annually thereafter") +
     theme_minimal() +
     theme(strip.text.x = element_text(size = 6))
